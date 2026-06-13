@@ -118,7 +118,8 @@
       opacity: 0;
       transition: opacity 0.2s;
     }
-    .progress-wrap:hover .progress-fill::after { opacity: 1; }
+    .progress-wrap:hover .progress-fill::after,
+    .progress-wrap.dragging .progress-fill::after { opacity: 1; }
 
     /* Tiempos */
     .times {
@@ -526,10 +527,57 @@ audio.addEventListener('loadedmetadata', () => {
 });
 audio.addEventListener('ended', () => setPlaying(false));
 
-wrap.addEventListener('click', e => {
+let dragging = false;
+let wasPlaying = false;
+
+function seekTo(clientX) {
   const rect = wrap.getBoundingClientRect();
-  const pct  = (e.clientX - rect.left) / rect.width;
+  const pct  = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
   audio.currentTime = pct * (audio.duration || 0);
+  fill.style.width  = (pct * 100) + '%';
+  elapsed.textContent = fmt(audio.currentTime);
+}
+
+wrap.addEventListener('mousedown', e => {
+  dragging = true;
+  wrap.classList.add('dragging');
+  wasPlaying = !audio.paused;
+  audio.pause();
+  wrap.style.cursor = 'grabbing';
+  seekTo(e.clientX);
+});
+
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  seekTo(e.clientX);
+});
+
+document.addEventListener('mouseup', e => {
+  if (!dragging) return;
+  dragging = false;
+  wrap.classList.remove('dragging');
+  wrap.style.cursor = '';
+  seekTo(e.clientX);
+  if (wasPlaying) { audio.play(); setPlaying(true); }
+});
+
+// Touch (móvil)
+wrap.addEventListener('touchstart', e => {
+  dragging = true;
+  wasPlaying = !audio.paused;
+  audio.pause();
+  seekTo(e.touches[0].clientX);
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  seekTo(e.touches[0].clientX);
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  if (!dragging) return;
+  dragging = false;
+  if (wasPlaying) { audio.play(); setPlaying(true); }
 });
 
 // Volumen
