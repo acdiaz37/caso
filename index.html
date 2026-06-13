@@ -53,6 +53,55 @@
       box-shadow: 0 32px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
+    /* Selector de tracks */
+    .track-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .track-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .track-item:hover { background: rgba(255,255,255,0.07); }
+    .track-item.active {
+      background: rgba(124,58,237,0.18);
+      border-color: rgba(124,58,237,0.5);
+    }
+    .track-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .track-item.active .track-num {
+      background: linear-gradient(135deg,#7c3aed,#2563eb);
+      color: #fff;
+    }
+    .track-item-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.15s;
+    }
+    .track-item.active .track-item-title { color: #fff; }
+
     /* Visualizador */
     #visualizer {
       width: 100%;
@@ -290,10 +339,21 @@
 <canvas id="particles"></canvas>
 
 <div class="card">
+  <div class="track-list">
+    <div class="track-item active" data-src="Heridas_familiares_que_el_orgullo_no_cura.m4a" data-title="Heridas familiares que el orgullo no cura">
+      <div class="track-num">1</div>
+      <div class="track-item-title">Heridas familiares que el orgullo no cura</div>
+    </div>
+    <div class="track-item" data-src="El_orgullo_que_dinamita_la_familia.m4a" data-title="El orgullo que dinamita la familia">
+      <div class="track-num">2</div>
+      <div class="track-item-title">El orgullo que dinamita la familia</div>
+    </div>
+  </div>
+
   <canvas id="visualizer"></canvas>
 
   <div class="track-info">
-    <div class="track-title">Heridas familiares que el orgullo no cura</div>
+    <div class="track-title" id="trackTitle">Heridas familiares que el orgullo no cura</div>
     <div class="track-subtitle">Audio &nbsp;·&nbsp; M4A</div>
   </div>
 
@@ -589,6 +649,27 @@ document.querySelectorAll('.btn-speed').forEach(btn => {
     audio.playbackRate = parseFloat(btn.dataset.speed);
     document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+  });
+});
+
+// Selector de tracks
+document.querySelectorAll('.track-item').forEach(item => {
+  item.addEventListener('click', () => {
+    audio.pause();
+    setPlaying(false);
+    audio.currentTime = 0;
+    fill.style.width = '0%';
+    elapsed.textContent = '0:00';
+    dur.textContent = '–:––';
+
+    audio.src = item.dataset.src;
+    audio.load();
+    document.getElementById('trackTitle').textContent = item.dataset.title;
+
+    document.querySelectorAll('.track-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+
+    audio.play().then(() => setPlaying(true));
   });
 });
 
