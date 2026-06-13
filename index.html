@@ -224,6 +224,44 @@
       to   { transform: scaleY(1); }
     }
 
+    /* Velocidad */
+    .speed-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .speed-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+    .btn-speed {
+      flex: 1;
+      padding: 6px 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .btn-speed:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .btn-speed.active {
+      background: linear-gradient(135deg, #7c3aed55, #2563eb55);
+      border-color: #7c3aed;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(124,58,237,0.4);
+    }
+
     /* Línea separadora */
     .divider {
       height: 1px;
@@ -311,6 +349,14 @@
       <div class="eq-bar"></div>
       <div class="eq-bar"></div>
     </div>
+  </div>
+
+  <div class="speed-row">
+    <span class="speed-label">Velocidad</span>
+    <button class="btn-speed" data-speed="0.5">×0.5</button>
+    <button class="btn-speed active" data-speed="1">×1</button>
+    <button class="btn-speed" data-speed="1.5">×1.5</button>
+    <button class="btn-speed" data-speed="2">×2</button>
   </div>
 
   <div class="divider"></div>
@@ -488,6 +534,15 @@ wrap.addEventListener('click', e => {
 
 // Volumen
 volSl.addEventListener('input', () => { audio.volume = volSl.value; });
+
+// Velocidad
+document.querySelectorAll('.btn-speed').forEach(btn => {
+  btn.addEventListener('click', () => {
+    audio.playbackRate = parseFloat(btn.dataset.speed);
+    document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 
 // Teclado
 document.addEventListener('keydown', e => {
